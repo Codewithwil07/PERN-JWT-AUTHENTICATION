@@ -12,10 +12,12 @@ router.post('/register', async (req, res) => {
       email,
     ]);
 
-    res.json(user.rows);
+    if (user.rows.length !== 0) {
+      res.status(401).send('user already exist');
+    }
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Server error');
+    res.status(500).send('Server error yes');
   }
 });
 
