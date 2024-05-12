@@ -40,4 +40,35 @@ router.post('/register', async (req, res) => {
   }
 });
 
+router.post('/login', async (req, res) => {
+  try {
+    // destructure req.body
+    const { email, password } = req.body;
+
+    // cek jika user sudah ada
+    const user = await pool.query('SELECT * FROM users WHERE user_email = $1', [
+      email,
+    ]);
+
+    if (user.rows.length == 0) {
+      res.status(401).send('Password or Email incorrect');
+    }
+
+    const validPassword = await bcrypt.compare(
+      password,
+      user.rows[0].user_password
+    );
+
+    if (!validPassword) {
+      return res.status(401).json('Password or Email is incorrect');
+    }
+
+    const token = jwtGenerator(user.rows[0].user_id);
+    res.json({ token });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
 module.exports = router;
