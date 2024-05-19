@@ -1,7 +1,33 @@
-// src/components/Login.js
-import React from 'react';
+import authService from '../services/authService';
+import { useState } from 'react';
+import '../App.css';
 
 const Login = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
+    setMessage('');
+
+    try {
+      const response = await authService.login(email, password);
+      setMessage('Login successful!');
+      window.location.href = '/dashboard';
+    } catch (error) {
+      const resMessage =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+
+      setMessage(resMessage);
+    }
+  };
+
   return (
     <div className='container mt-5'>
       <div className='row justify-content-center'>
@@ -9,7 +35,7 @@ const Login = () => {
           <div className='card'>
             <div className='card-body'>
               <h3 className='card-title text-center'>Login</h3>
-              <form>
+              <form onSubmit={handleLogin}>
                 <div className='form-group'>
                   <label htmlFor='email'>Email</label>
                   <input
@@ -17,6 +43,9 @@ const Login = () => {
                     className='form-control'
                     id='email'
                     placeholder='Enter email'
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
                   />
                 </div>
                 <div className='form-group'>
@@ -26,12 +55,16 @@ const Login = () => {
                     className='form-control'
                     id='password'
                     placeholder='Enter password'
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
                   />
                 </div>
                 <button type='submit' className='btn btn-primary btn-block'>
                   Login
                 </button>
               </form>
+              {message && <div>{message}</div>}
             </div>
           </div>
         </div>
